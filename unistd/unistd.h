@@ -62,6 +62,7 @@ CFUNC int opterr;
 CFUNC int optopt;
 
 typedef long long useconds_t;
+typedef unsigned int uint;
 
 enum 
 {	F_LOCK=1,
@@ -218,8 +219,6 @@ CFUNC int vasprintf(char **strp, const char *fmt, va_list ap);
 #define pipe(pipes) _pipe((pipes),8*1024,_O_BINARY)
 #ifndef __has_attribute
 #define   __attribute__(x)
-#endif
-//__attribute__((format (printf, 1, 2)))
 #define mkdir mkdir2
 #define fileno _fileno
 #define open uni_open
@@ -233,5 +232,35 @@ CFUNC int vasprintf(char **strp, const char *fmt, va_list ap);
 #define SSIZE_MAX SIZE_MAX
 #define SIGTRAP 23
 
+// Defined unsupported macro as empty.
+#define __builtin_unreachable()
+
+// Remove defines that cause collisions.
+#undef min
+#undef max
+#undef close
+#undef CONST
+#undef ERROR
+#undef IGNORE
+#undef STATUS_INVALID_HANDLE
+#undef STATUS_INVALID_PARAMETER
+#undef Yield
+#undef CompareString
+#undef NO_ERROR
+
+#if _MSC_VER < 1930
+// Workaround negative character values that caused asserts on VS 2019 and below
+#define isalpha(ch) isalpha((unsigned char)(ch))
+#define isupper(ch) isupper((unsigned char)(ch))
+#define islower(ch) islower((unsigned char)(ch))
+#define isdigit(ch) isdigit((unsigned char)(ch))
+#define isspace(ch) isspace((unsigned char)(ch))
+#define ispunct(ch) ispunct((unsigned char)(ch))
+#define isblank(ch) isblank((unsigned char)(ch))
+#define isalnum(ch) isalnum((unsigned char)(ch))
+#define isprint(ch) isprint((unsigned char)(ch))
+#define isgraph(ch) isgraph((unsigned char)(ch))
+#define iscntrl(ch) iscntrl((unsigned char)(ch))
 #endif
 
+#endif
