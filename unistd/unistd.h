@@ -63,11 +63,11 @@ CFUNC int optopt;
 typedef long long useconds_t;
 typedef unsigned int uint;
 
-enum 
+enum
 {	F_LOCK=1,
 	F_TLOCK,
 	F_ULOCK,
-	F_TEST 
+	F_TEST
 };
 
 #ifdef _BSD_SOURCE
@@ -76,6 +76,8 @@ CFUNC pid_t getpgrp(pid_t pid); /* BSD version */
 CFUNC pid_t getpgrp(); /* POSIX.1 version */
 #endif
 CFUNC int setpgrp(pid_t pid, pid_t pgid); 
+CFUNC int read(int fh, void* buf, unsigned count);
+CFUNC int pipe(int pipes[2]);
 //CFUNC int uni_open(const char* filename,unsigned oflag,int mode);
 CFUNC int uni_open(const char* filename, unsigned oflag,...);
 CFUNC int fcntl(int handle, int mode,...);
@@ -215,9 +217,9 @@ CFUNC int vasprintf(char **strp, const char *fmt, va_list ap);
 #define getpid _getpid
 #define RETSIGTYPE void
 #define access _access
-#define pipe(pipes) _pipe((pipes),8*1024,_O_BINARY)
 #ifndef __has_attribute
 #define   __attribute__(x)
+#endif
 #define mkdir mkdir2
 #define fileno _fileno
 #define open uni_open
