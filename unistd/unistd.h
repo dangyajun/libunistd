@@ -223,7 +223,7 @@ CFUNC int aprintf(char **ret, const char *format, ...);
 #endif
 #define mkdir mkdir2
 #define fileno _fileno
-#define open uni_open
+//#define open uni_open
 #define fdopen _fdopen
 #define execve _execve
 #define execv _execv
