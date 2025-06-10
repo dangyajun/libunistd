@@ -63,6 +63,7 @@ set(HEADERS
 	time/Watchdog.h
 	WormFile.h
 )
+source_group("Header Files" FILES "${HEADERS}")
 
 set(SOURCE
 	ipc/BsdPacketServer.cpp
@@ -80,5 +81,33 @@ set(SOURCE
 	time/VariableClock.cpp
 	WormFile.cpp
 )
+source_group("Source Files" FILES "${SOURCE}")
 
-add_library(${PROJECT_NAME}	STATIC ${HEADERS} ${SOURCE})
+include(GNUInstallDirs)
+if (BUILD_SHARED_LIBS AND NOT BUILD_STATIC_LIBS AND BUILD_PORTABLE_SHARED)
+	set(lib_type SHARED)
+else ()
+    set(lib_type STATIC)
+endif ()
+add_library("${PROJECT_NAME}" ${lib_type} "${HEADERS}" "${SOURCE}")
+
+#######################################
+# Export / installation configuration #
+#######################################
+
+# setup the version PROJECT_NAME
+set_property(TARGET "${PROJECT_NAME}" PROPERTY VERSION "${${PROJECT_NAME}_VERSION}")
+set_property(TARGET "${PROJECT_NAME}" PROPERTY SOVERSION "${${PROJECT_NAME}_VERSION_MAJOR}")
+
+# install rules
+list(APPEND installable_libs "${PROJECT_NAME}")
+if (TARGET "${DEPENDANT_LIBRARY}")
+	list(APPEND installable_libs "${DEPENDANT_LIBRARY}")
+endif (TARGET "${DEPENDANT_LIBRARY}")
+install(TARGETS ${installable_libs}
+		EXPORT "${PROJECT_NAME}Targets"
+		ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+		LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+		RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+install(FILES ${HEADERS}
+		TYPE "INCLUDE")
