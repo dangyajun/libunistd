@@ -30,14 +30,6 @@ Doing this will include the magic to make basic Linux APIs work in Windows. Beca
 
 Libunisd has much more than unistd.h. It implements many other header files that are POSIX standards, including pthreads.h. When porting your Linux program to Windows for the first time, you may have to include more POSIX headers than were necessary in your Linux code. In Linux, some standard headers include other standard header files. As a result, sometimes code that's not strictly legit may compile on Linux, even though it hasn't explicitly included all necessary header files. If you port Linux code to FreeBSD or Mac OS X, you have encountered this before. That's why the compiler may sometimes object to POSIX functions being unknown. Simple solution. Look up in the Linux man page the "unknown" function and include all the header files that the Linux man page says it requires.
 
-## History
-
-In 2002, the CinePaint graphics app only built on Linux. CinePaint program director Robin Rowe created the Windows port, but thought it poor design that he had \#ifdef _WIN32 sprinkled in application code. The POSIX compatibility code was spun off, separated to hide the Windows bits behind the Linux API calls. That is libunistd.
-
-Years later, a major maker of U.S. traffic lights and the Linux safety-critical embedded software to control them, hired Rowe to do code optimization needed to support AI integration and also to create a Windows port so the engineers could in VC++. The controller ships as Linux gcc, not Windows. However, engineers more comfortable using Visual Studio. Being able to do development and initial testing on Windows is convenient and increased productivity.
-
-A company that uses libunistd reached out with a few patches, but pretty much all of libunistd was coded by Rowe. 
-
 ## License
 
 Open Source MIT/BSD.
@@ -45,6 +37,14 @@ Open Source MIT/BSD.
 ## History
 
 Libunistd was originally created to port Linux CinePaint to Windows in 2002. CinePaint is an open source HDR paint application used in making motion pictures, including the _Harry Potter_ and _Lord of the Rings_ films. Libunistd later moved from SourceForge to github and has been continuously improved, with more and more BSD and System V calls added. 
+
+CinePaint program director Robin Rowe created the Windows port of CinePaint, but considered it poor design that he had \#ifdef _WIN32 sprinkled in application code. The POSIX compatibility code was spun off, separated to hide the Windows bits behind the Linux API calls, as libunistd.
+
+Years later, a major maker of U.S. traffic lights and the Linux safety-critical embedded software to control them, hired Rowe to do code optimization needed to support AI integration and also to create a Windows port so the engineers could in VC++. The controller ships as Linux gcc, not Windows. However, engineers more comfortable using Visual Studio. Being able to do development and initial testing on Windows is convenient and increased productivity.
+
+A company that uses libunistd reached out with a few patches, but pretty much all of libunistd was coded by Rowe. 
+
+
 
 ## Press About Libunistd...
 
