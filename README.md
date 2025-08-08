@@ -1,6 +1,6 @@
 # libunistd POSIX/pthreads API for Windows
 
-Anyone maintaining C++ code across Windows, Linux and MacOS, needs a POSIX library to be able to do single codebase builds on Windows. Libunistd supports all the common Linux POSIX calls, except fork(). Instead of fork, use pthreads. 
+Anyone maintaining C/C++ code across Windows, Linux and MacOS, needs a POSIX library to be able to do single codebase builds on Windows. Libunistd supports all the common Linux POSIX calls, except for fork(). Instead of fork, use pthreads. 
 
 Reasons to build Linux apps natively on Windows with libunistd:
 
@@ -12,6 +12,7 @@ Reasons to build Linux apps natively on Windows with libunistd:
 Linux API on Windows Comparison:
 
 | Software | License | API Compatibility | Advantages | Limitations | Installation |
+|------------|------------|------------|------------|------------|------------|
 | libunistd | MIT | POSIX and pthreads | Very lightweight, 99% header-only, VC++, no DLL | No fork() API call, but has pthreads instead | clone from github |
 | Cygwin | LGPL | Linux subsystem on Windows | Heavy, full Linux CLI as MSYS2 on Windows | Tied to mingw compiler, no VC++, requires linking DLL | Complex installer with its own package manager |
 | mingw | GPL | gcc on Windows | Port of the GNU Compiler Collection (GCC) | About the same as using gcc on Linux | Included in Cygwin |
