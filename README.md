@@ -31,6 +31,8 @@ Besides CinePaint, libunistd is used in other systems. For example, to build a W
 ## Version 1.3
 Tagged 19 Oct 2025
 
+Changes:
+
 - vasprintf()
 - getline()
 - gethostbyname2()

@@ -43,7 +43,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <io.h>
-#include "../portable/bsd_string.h"
+#include "bsd_string.h"
 #include "sigaction.h"
 #include "gettimeofday.h"
 #include "clock_gettime.h"

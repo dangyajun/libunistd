@@ -3,7 +3,7 @@
 // License MIT open source
 
 #include "pthread.h"
-#include "../portable/Logger.h"
+#include "SystemLog.h"
 
 #include <thread>
 #include <system_error>
