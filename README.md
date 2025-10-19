@@ -1,4 +1,4 @@
-# libunistd
+# libunistd Windows POSIX/pthreads
 
 [Libunistd](https://github.com/robinrowe/libunistd/) is a lightweight [POSIX](https://en.wikipedia.org/wiki/POSIX) and [pthreads](https://en.wikipedia.org/wiki/Pthreads) library for Windows that enables ordinary Linux C/C++ source code to build using Microsoft Visual Studio pretty much as-is. If you're developing C/C++ code across Windows, Linux and MacOS, use libunistd to make a single codebase strategy work. Libunistd supports all the common Linux pthreads POSIX calls, except fork(). Instead of fork, use C/C++threads or pthreads. 
 
@@ -19,10 +19,6 @@ When porting your Linux program to Windows for the first time, you may have to i
 ## CMake Build Automation with Cmaker
 
 Libunistd has a CMake build system. If you have a Linux codebase that uses `make`, that is not the right stuff for maintaining a platform-independent single codebase. Use my Cmake build automation software [Cmaker](https://gitlab.com/heroic-robots/cmaker) to create a new cmake build system automatically. Cmaker creates a recursive cmake build system without reference to anything except what C/C++ files it finds in the source directory and below. Will create a cmake recursive build system from scratch, within seconds.
-
-## License
-
-Open Source MIT/BSD. In other words, you may do pretty much whatever you want with libunistd. Not copyleft GNU. Similar for Qdecoder, Sqlite and xxHash, however you should check their license terms yourself as libunistd is not the owner of these other open source libraries.
 
 ## History
 
@@ -48,6 +44,8 @@ Tagged 19 Oct 2025
 - timwoj merge
 - Wojtulewicz merge
 
+bash
+```
 % git log --tags --simplify-by-decoration --pretty="format:%ai %d"
 
 2018-10-28 22:36:18 -0700  (tag: v1.2)
@@ -55,22 +53,17 @@ Tagged 19 Oct 2025
 2016-09-16 18:12:01 -0700  (origin/devel)
 2016-02-20 16:52:48 -0800  (tag: v1.1)
 2015-06-12 20:09:48 -0700 
-
-## Other Stuff
-
-Libunistd has some additional small libraries that are not POSIX, but can be useful to those of us developing cross-platform code. Libunistd has no dependencies on these. Use them if you wish.
-
-1. Portable: System classes, such as StdFile that encapsulates the standard FILE* C API into a C++ class with constructors and destructors.
-2. Qdecoder: A small HTTP library created elsewhere.  
-3. Sqlite: A small SQL library created elsewhere.
-4. xxHash: A small hash library created elsewhere.
-5. uuid: A small unique identifier library created elsewhere.
+```
 
 ## Code Contributors
 
 - robinrowe
 - Wojtulewicz
 - timwoj
+
+## License
+
+Open Source MIT/BSD. In other words, you may do pretty much whatever you want with libunistd. Not copyleft GNU.
 
 ## Project Director
 
