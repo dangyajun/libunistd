@@ -540,3 +540,25 @@ int fseeko(FILE *stream, off_t offset, int whence)
 off_t ftello(FILE *stream)
 {	return ftell(stream);
 }
+
+int vasprintf(char **strp, const char *fmt, va_list ap) 
+{   va_list ap_copy;
+    va_copy(ap_copy, ap);
+    int size = vsnprintf(NULL, 0, fmt, ap_copy);
+    va_end(ap_copy);
+    if (size < 0) 
+	{	return -1; // Error
+    }
+    *strp = (char *)malloc(size + 1); // +1 for the null terminator
+    if (*strp == NULL) 
+	{	return -1; // Memory allocation failed
+    }
+    // format the string into the allocated buffer
+    int result = vsnprintf(*strp, size + 1, fmt, ap);
+    if (result < 0) 
+	{   free(*strp);
+        *strp = NULL;
+        return -1; // Error
+    }
+	return result;
+}

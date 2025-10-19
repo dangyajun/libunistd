@@ -43,7 +43,7 @@ const std::map<error_type, int> ERROR_TYPE =
 	{error_badrepeat, REG_BADRPT},
 	{error_complexity, REG_ESIZE},
 	{error_stack, REG_ESIZE},
-	{error_parse, REG_BADPAT},
+	{_Error_parse, REG_BADPAT},
 	{error_syntax, REG_BADPAT}
 };
 

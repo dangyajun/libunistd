@@ -245,7 +245,7 @@ void error_msg(const char* msg,const char* function,int lineno)
 inline
 void signal_safe_puts(const char* msg)
 {	if(msg)
-	{	write(fileno(stdout),msg,(int) strlen(msg));
+	{	_write(fileno(stdout),msg,(int) strlen(msg));
 }	}
 
 #endif

@@ -162,10 +162,11 @@ CFUNC off_t ftello(FILE *stream);
 CFUNC char* strptime(const char* s, const char* format,struct tm* tm);
 CFUNC ssize_t getline(char** lineptr, size_t* n,FILE* stream);
 CFUNC ssize_t getdelim(char** lineptr, size_t* n,int delim, FILE* stream);
+CFUNC int vasprintf(char **strp, const char *fmt, va_list ap);
 
 //#define strlen unistd_safe_strlen
 //#define inet_ntop InetNtop
-#define bzero(address,size) memset((address),0,size)
+#define bzero(object) memset((object),0,sizeof(*object))
 #define bcmp(s1, s2, n)	memcmp ((s1), (s2), (n))
 #define bcopy(s, d, n)	memcpy ((d), (s), (n))
 #define pow10(x) pow(x,10)
