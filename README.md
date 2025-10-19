@@ -26,9 +26,11 @@ Open Source MIT/BSD. In other words, you may do pretty much whatever you want wi
 
 ## History
 
-Libunistd was originally created to port Linux CinePaint to Windows in 2002. CinePaint is an open source HDR paint application used in making motion pictures, including the _Harry Potter_ and _Lord of the Rings_ films. Libunistd later moved from SourceForge to github and has been continuously improved, with more and more BSD and System V calls added. 
+Libunistd ([github repo](https://github.com/robinrowe/libunistd)) is an API wrapper for Windows that maps POSIX/pthreads/BSD/System V \*nix system calls to call into their Windows conterparts. Port Linux-style C/C++ programs to Windows rapidly. Simply set build include path to point to magic Windows headers that have the same names as unistd.h and other common Linux header files.
 
-Libunistd is being used for safety-critical Linux embedded systems. Not to deliver a Windows build on an embedded system, rather for testing and QA of the same embedded system codebase in Windows with access to the superb Microsoft Visual Studio debugger and its excellent static code checker that detects memory overruns. 
+Originally developed in 2002 while porting CinePaint to Windows, libunistd has been continually improved. Using libunistd makes it much easier to maintain the same C/C++ codebase for Linux/MacOS/Windows. Another benefit of libunistd, building \*nix code in Visual Studio is access to the excellent static code checker in that IDE. Detect buffer overruns and pointer issues at compile time. Great for legacy code clean-up.
+
+Besides CinePaint, libunistd is used in other systems. For example, to build a Windows version of a Linux traffic controller. Sequences U.S. traffic lights upon which lives depend, a safety-critical, real-time, Linux embedded system that’s national critical infrastructure. Although the controller would only ship with the embedded version using the USDOT-approved version of gcc, I built the same code in gcc, clang and VC++. Each compiler reports slightly different warnings and errors. Achieving a clean compile in all 3 compilers, with no warnings or errors, made for better code.
 
 ## Version 1.3
 Tagged 19 Oct 2025
@@ -45,6 +47,14 @@ Tagged 19 Oct 2025
 - getopt()
 - timwoj merge
 - Wojtulewicz merge
+
+% git log --tags --simplify-by-decoration --pretty="format:%ai %d"
+
+2018-10-28 22:36:18 -0700  (tag: v1.2)
+2017-04-15 15:49:13 -0700  (tag: v1.0)
+2016-09-16 18:12:01 -0700  (origin/devel)
+2016-02-20 16:52:48 -0800  (tag: v1.1)
+2015-06-12 20:09:48 -0700 
 
 ## Other Stuff
 
