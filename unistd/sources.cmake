@@ -69,6 +69,7 @@ sys/socketvar.h
 sys/time.h
 sys/epoll.h
 sys/ioctl.h
+sys/ioctl.c
 sys/param.h
 sys/random.h
 sys/sem.h
@@ -86,3 +87,7 @@ sys/prctl.h
 sys/select.h
 sys/socket.h
 sys/syscall.h
+sys/uio.c
+sys/uio.h
+atomic/stdatomic.h
+atomic/stdatomic.cpp

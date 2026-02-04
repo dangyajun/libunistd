@@ -6,7 +6,11 @@
 #define sys_sys_types_h
 
 #include <stdint.h>
-#include "../linux/limits.h"
+#include <sys/types.h>
+#include "linux/limits.h"
+
+#define AF_LOCAL AF_UNIX
+#define UNIX_PATH_MAX 108
 
 typedef intptr_t pid_t;
 typedef int gid_t;
@@ -124,5 +128,11 @@ int access(const char *pathname, int mode)
 #define O_NONBLOCK 0
 #define O_SYNC 0
 #define O_NOCTTY 0
+
+struct unix_socket {
+    int is_server;
+    char path[UNIX_PATH_MAX];
+    HANDLE handle;
+};
 
 #endif

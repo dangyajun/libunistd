@@ -11,7 +11,9 @@
 #error Winsock2.h (unistd.h) must be included before Windows.h!
 #endif
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #include <WinSock2.h>
 #include <Windows.h>
 #include <winnt.h>
@@ -52,7 +54,7 @@
 
 inline 
 const char* GetUnistdVersion()
-{	return "v1.3 2024/06/30"; // git tag -a v1.3 -m "2024/06/30"
+{	return "v1.4 (3 Feb 2026)"; // git tag -a v1.4 -m "3 Feb 2026"
 }
 
 CFUNC const char* optarg;
@@ -111,6 +113,7 @@ CFUNC int getopt(int argc, char * const argv[],const char *optstring);
 CFUNC void PrintDirectory();
 CFUNC unsigned int alarm(unsigned int seconds);
 CFUNC int chown(const char *path, uid_t owner, gid_t group);
+//Already in Win32: CFUNC int chmod(const char *path, mode_t mode);
 CFUNC int fchown(int fd, uid_t owner, gid_t group);
 CFUNC int lchown(const char *path, uid_t owner, gid_t group);
 CFUNC int chroot(const char *path);
@@ -166,7 +169,12 @@ CFUNC int vasprintf(char **strp, const char *fmt, va_list ap);
 
 //#define strlen unistd_safe_strlen
 //#define inet_ntop InetNtop
-#define bzero(object) memset((object),0,sizeof(*object))
+//#define bzero(object,size) memset((object),0,size)
+inline 
+void bzero(void *s, size_t n) 
+{	memset(s, 0, n);
+}
+
 #define bcmp(s1, s2, n)	memcmp ((s1), (s2), (n))
 #define bcopy(s, d, n)	memcpy ((d), (s), (n))
 #define pow10(x) pow(x,10)
@@ -206,8 +214,10 @@ CFUNC int vasprintf(char **strp, const char *fmt, va_list ap);
 #define isatty _isatty
 #define getcwd _getcwd
 #define dup2 _dup2
-#define dup _dup
+#ifndef UNISTD_KEEP_CLOSE
 #define close _close
+#define dup _dup
+#endif
 #define chdir _chdir
 #define getpid _getpid
 #define RETSIGTYPE void
@@ -229,6 +239,68 @@ CFUNC int vasprintf(char **strp, const char *fmt, va_list ap);
 #define spawnv _spawnv
 #define SSIZE_MAX SIZE_MAX
 #define SIGTRAP 23
+
+// simd_detect.h — portable SIMD feature detection for C/C++
+// Works on GCC, Clang, MSVC, ICC, MinGW, Clang-CL
+
+#pragma once
+
+// =========================
+//  SSE2
+// =========================
+#if defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
+#   define HAVE_SSE2 1
+#else
+#   define HAVE_SSE2 0
+#endif
+
+// =========================
+//  SSE4.1
+// =========================
+#if defined(__SSE4_1__) || defined(__AVX__) || defined(__AVX2__)
+#   define HAVE_SSE41 1
+#else
+#   define HAVE_SSE41 0
+#endif
+
+// =========================
+//  AVX
+// =========================
+#if defined(__AVX__) || defined(__AVX2__)
+#   define HAVE_AVX 1
+#else
+#   define HAVE_AVX 0
+#endif
+
+// =========================
+//  AVX2
+// =========================
+#if defined(__AVX2__)
+#   define HAVE_AVX2 1
+#else
+#   define HAVE_AVX2 0
+#endif
+
+// =========================
+//  AVX-512 (basic)
+// =========================
+#if defined(__AVX512F__)
+#   define HAVE_AVX512 1
+#else
+#   define HAVE_AVX512 0
+#endif
+
+#if HAVE_AVX2
+#   define POSIX_SIMD_LEVEL 5
+#elif HAVE_AVX
+#   define POSIX_SIMD_LEVEL 4
+#elif HAVE_SSE41
+#   define POSIX_SIMD_LEVEL 3
+#elif HAVE_SSE2
+#   define POSIX_SIMD_LEVEL 2
+#else
+#   define POSIX_SIMD_LEVEL 0
+#endif
 
 #endif
 

@@ -5,23 +5,6 @@
 #ifndef sys_ioctl_h
 #define sys_ioctl_h
 
-#include "../stub.h"
-
-#ifdef __cplusplus
-extern "C" {
-#else
-#define inline __inline
-#endif
-
-inline
-int ioctl(int fd, unsigned long request, ...)
-{   STUB_NEG(ioctl);
-}
-
-// include net/if.h if you need struct ifreq 
-
-#ifdef __cplusplus
-}
-#endif
+int ioctl(int fd, unsigned long request, ...);
 
 #endif

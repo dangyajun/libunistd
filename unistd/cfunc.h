@@ -6,9 +6,9 @@
 #define cfunc_h
 
 #ifdef __cplusplus
-#define CFUNC extern "C"
+#define CFUNC extern "C" 
 #else
-#define CFUNC extern
+#define CFUNC extern 
 #ifndef inline
 #define inline __inline
 #endif

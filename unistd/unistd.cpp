@@ -263,7 +263,13 @@ int chown(const char *path, uid_t owner, gid_t group)
 	(void)group;
 	STUB_0(chown);
 }
-
+#if 0
+int chmod(const char *path, mode_t mode) 
+{   (void) path;
+	(void) mode;
+	STUB_0(chmod);
+}
+#endif
 int fchown(int fd, uid_t owner, gid_t group)
 {	(void)fd;
 	(void)owner;
@@ -562,3 +568,4 @@ int vasprintf(char **strp, const char *fmt, va_list ap)
     }
 	return result;
 }
+

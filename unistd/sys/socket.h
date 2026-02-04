@@ -1,7 +1,11 @@
-#ifndef socket_h
-#define socket_h
+// sys/socket.h
 
+#ifndef sys_socket_h
+#define sys_socket_h
+
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #include <winsock2.h>
 #include <windows.h>
 #include <Mstcpip.h>
@@ -9,14 +13,9 @@
 #include <stdint.h>
 #include "stub.h"
 #include "cfunc.h"
+#include "sys/uio.h"
 
 typedef uint32_t sa_family_t;
-
-// The iovec structure shall be defined as described in <sys/uio.h> .
-
-struct iovec
-{	int junk;
-};
 
 struct msghdr 
 {	void* msg_name;
