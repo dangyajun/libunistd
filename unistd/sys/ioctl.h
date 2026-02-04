@@ -5,6 +5,8 @@
 #ifndef sys_ioctl_h
 #define sys_ioctl_h
 
-int ioctl(int fd, unsigned long request, ...);
+#include "../cfunc.h"
+
+CFUNC int ioctl(int fd, unsigned long request, ...);
 
 #endif

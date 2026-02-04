@@ -33,63 +33,60 @@
 #include <winerror.h>
 #include <memory.h>
 #include <mswsock.h> //for SO_UPDATE_ACCEPT_CONTEXT
-#include <Ws2tcpip.h>//for InetNtop
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
-#include <memory.h>
 #include <signal.h>
 #include <sys/utime.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <assert.h>
 #include <inttypes.h>
-#include <io.h>
-#include "bsd_string.h"
+
+#include "bsd/string.h"
 #include "sigaction.h"
 #include "gettimeofday.h"
 #include "clock_gettime.h"
 #include "cfunc.h"
 #include "stub.h"
+#include "sys/posix_types.h"
+#include "sys/posix_stdio.h"
 
 inline 
 const char* GetUnistdVersion()
 {	return "v1.4 (3 Feb 2026)"; // git tag -a v1.4 -m "3 Feb 2026"
 }
 
-CFUNC const char* optarg;
-CFUNC int optind;
-CFUNC int opterr;
-CFUNC int optopt;
+// Disable gcc function signature extension:
+#ifndef __has_attribute
+#define   __attribute__(x)
+#endif
+//__attribute__((format (printf, 1, 2)))
 
-typedef long long useconds_t;
-
-enum 
-{	F_LOCK=1,
-	F_TLOCK,
-	F_ULOCK,
-	F_TEST 
-};
+#undef MAX_PRIORITY /* remove winspool.h warning */
+#define SSIZE_MAX SIZE_MAX
+#define SIGTRAP 23
 
 #ifdef _BSD_SOURCE
 CFUNC pid_t getpgrp(pid_t pid); /* BSD version */
+//CFUNC int fcntl(int handle,int mode,int mode2);
 #else
 CFUNC pid_t getpgrp(); /* POSIX.1 version */
+//CFUNC int fcntl(int handle, int mode,...);
 #endif
-CFUNC int setpgrp(pid_t pid, pid_t pgid); 
-//CFUNC int uni_open(const char* filename,unsigned oflag,int mode);
-CFUNC int uni_open(const char* filename, unsigned oflag,...);
-CFUNC int fcntl(int handle, int mode,...);
-//CFUNC int fcntl(int handle,int mode,int mode2);
 
+inline
+void *alloca(size_t size)
+{	return _alloca(size);
+}
+
+CFUNC int setpgrp(pid_t pid, pid_t pgid); 
 CFUNC int mkdir2(const char* path, int mask);
 CFUNC int snprintb(char *buf, size_t buflen, const char *fmt, uint64_t val);
 CFUNC int snprintb_m(char *buf, size_t buflen, const char *fmt, uint64_t val,size_t max);
 CFUNC size_t unistd_safe_strlen(const char* s);
 CFUNC int uni_sscanf(char* input,const char* format,...);
 CFUNC int strncasecmp(const char *s1, const char *s2, size_t n);
-CFUNC FILE *popen(const char *command, const char *type);
-CFUNC int pclose(FILE *stream);
+//CFUNC FILE *popen(const char *command, const char *type);
+//CFUNC int pclose(FILE *stream);
 CFUNC int kill(pid_t p, int x);
 CFUNC int S_ISCHR(int v); 
 CFUNC int S_ISBLK(int v); 
@@ -113,7 +110,6 @@ CFUNC int getopt(int argc, char * const argv[],const char *optstring);
 CFUNC void PrintDirectory();
 CFUNC unsigned int alarm(unsigned int seconds);
 CFUNC int chown(const char *path, uid_t owner, gid_t group);
-//Already in Win32: CFUNC int chmod(const char *path, mode_t mode);
 CFUNC int fchown(int fd, uid_t owner, gid_t group);
 CFUNC int lchown(const char *path, uid_t owner, gid_t group);
 CFUNC int chroot(const char *path);
@@ -167,140 +163,144 @@ CFUNC ssize_t getline(char** lineptr, size_t* n,FILE* stream);
 CFUNC ssize_t getdelim(char** lineptr, size_t* n,int delim, FILE* stream);
 CFUNC int vasprintf(char **strp, const char *fmt, va_list ap);
 
-//#define strlen unistd_safe_strlen
-//#define inet_ntop InetNtop
-//#define bzero(object,size) memset((object),0,size)
 inline 
 void bzero(void *s, size_t n) 
 {	memset(s, 0, n);
 }
 
-#define bcmp(s1, s2, n)	memcmp ((s1), (s2), (n))
-#define bcopy(s, d, n)	memcpy ((d), (s), (n))
-#define pow10(x) pow(x,10)
-#define alloca _alloca
-/* use with limits.h */
-#define LONG_LONG_MAX LLONG_MAX     
-#define LONG_LONG_MIN LLONG_MIN     
-#define strdup _strdup
+inline
+double pow10(double x)
+{	return pow(x,10);
+}
+
+inline
+char *strdup(const char *s)
+{	return _strdup(s);
+}
+
 #define vsnprintf _vsnprintf
+//Already in Win32: CFUNC int chmod(const char *path, mode_t mode);
 //#define sscanf uni_sscanf
-#undef MAX_PRIORITY /* remove winspool.h warning */
+//#define strlen unistd_safe_strlen
+//#define inet_ntop InetNtop
 #ifndef strcasecmp
 #define strcasecmp _stricmp
 #endif
 #define strncasecmp _strnicmp
 #define strtok_r strtok_s
-//#define send send2
-#define lstat stat
-#define fileno _fileno
-#define STDIN_FILENO _fileno(stdin)
-#define STDOUT_FILENO _fileno(stdout)
-#define STDERR_FILENO _fileno(stderr)
+
+inline
+int unlink(const char *path)
+{	return _unlink(path);
+}
+
+inline
+int rmdir(const char *path)
+{	return _rmdir(path);
+}
+
+inline
+off_t lseek(int fd, off_t offset, int whence)
+{	_lseek(fd,offset,whence);
+}
+
+inline
+int isatty(int fd)
+{	return _isatty(fd);
+}
+
+inline
+char *getcwd(char* buf, size_t size)
+{	return _getcwd(buf,size);
+}
+
+inline
+int dup(int oldfd)
+{	return _dup(oldfd);
+}
+
+inline
+int dup2(int oldfd, int newfd)
+{	return _dup2(oldfd,newfd);
+}
+
+inline
+int chdir(const char *path)
+{	return _chdir(path);
+}
+
+#define getpid _getpid
+
+inline
+int access(const char *path, int mode)
+{	return _access(path,mode);
+}
+
+inline
+int pipe(int* pipes)
+{	return _pipe((pipes),8*1024,_O_BINARY);
+}
+
+inline
+int mkdir(const char *path, mode_t mode)
+{	(void) mode;
+	return _mkdir(path);
+}
+
+inline
+int execve(const char *path, char *const *argv,char *const *envp)
+{	return _execve(path,argv,envp);
+}
+
+inline
+int execv(const char *path, char *const *argv)
+{	return _execv(path,argv);
+}
+
+inline
+int open(const char *filename, int oflag, ...)
+{	return _open(filename, oflag, 0); //mode is third arg
+}
+
+inline
+int close(int fd)
+{	return _close(fd);
+}
+
+CFUNC int lstat(const char *path,struct _stat *statbuf);
+
+#define spawnvpe _spawnvpe
+#define spawnvp _spawnvp
+#define spawnve _spawnve
+#define spawnv _spawnv
+
 // causes issues with math.h:
 //#define rint(x) floor ((x) + 0.5)
 //#define lround floor
 //#define roundl floor
 // The POSIX name for this item is deprecated by MSVC:
 
-#ifdef POSIX_WRITE
-#define write _write
-#define read _read
-#endif
+// Cannot do struct/function name: typedef struct _stat64 stat;
 
-#define unlink _unlink
-#define rmdir _rmdir
-#define lseek _lseek
-#define isatty _isatty
-#define getcwd _getcwd
-#define dup2 _dup2
-#ifndef UNISTD_KEEP_CLOSE
-#define close _close
-#define dup _dup
-#endif
-#define chdir _chdir
-#define getpid _getpid
-#define RETSIGTYPE void
-#define access _access
-#define pipe(pipes) _pipe((pipes),8*1024,_O_BINARY)
-#ifndef __has_attribute
-#define   __attribute__(x)
-#endif
-//__attribute__((format (printf, 1, 2)))
-#define mkdir mkdir2
-#define fileno _fileno
-#define open uni_open
-#define fdopen _fdopen
-#define execve _execve
-#define execv _execv
-#define spawnvpe _spawnvpe
-#define spawnvp _spawnvp
-#define spawnve _spawnve
-#define spawnv _spawnv
-#define SSIZE_MAX SIZE_MAX
-#define SIGTRAP 23
+struct stat 
+{// same as _stat64
+    _dev_t         st_dev;
+    _ino_t         st_ino;
+    unsigned short st_mode;
+    short          st_nlink;
+    short          st_uid;
+    short          st_gid;
+    _dev_t         st_rdev;
+    __int64        st_size;
+    __time64_t     st_atime;
+    __time64_t     st_mtime;
+    __time64_t     st_ctime;
+};
 
-// simd_detect.h — portable SIMD feature detection for C/C++
-// Works on GCC, Clang, MSVC, ICC, MinGW, Clang-CL
-
-#pragma once
-
-// =========================
-//  SSE2
-// =========================
-#if defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
-#   define HAVE_SSE2 1
-#else
-#   define HAVE_SSE2 0
-#endif
-
-// =========================
-//  SSE4.1
-// =========================
-#if defined(__SSE4_1__) || defined(__AVX__) || defined(__AVX2__)
-#   define HAVE_SSE41 1
-#else
-#   define HAVE_SSE41 0
-#endif
-
-// =========================
-//  AVX
-// =========================
-#if defined(__AVX__) || defined(__AVX2__)
-#   define HAVE_AVX 1
-#else
-#   define HAVE_AVX 0
-#endif
-
-// =========================
-//  AVX2
-// =========================
-#if defined(__AVX2__)
-#   define HAVE_AVX2 1
-#else
-#   define HAVE_AVX2 0
-#endif
-
-// =========================
-//  AVX-512 (basic)
-// =========================
-#if defined(__AVX512F__)
-#   define HAVE_AVX512 1
-#else
-#   define HAVE_AVX512 0
-#endif
-
-#if HAVE_AVX2
-#   define POSIX_SIMD_LEVEL 5
-#elif HAVE_AVX
-#   define POSIX_SIMD_LEVEL 4
-#elif HAVE_SSE41
-#   define POSIX_SIMD_LEVEL 3
-#elif HAVE_SSE2
-#   define POSIX_SIMD_LEVEL 2
-#else
-#   define POSIX_SIMD_LEVEL 0
-#endif
+inline
+int stat(const char *path, struct stat *buf) 
+{   return _stat64(path, (struct _stat64*)buf);
+}
 
 #endif
 

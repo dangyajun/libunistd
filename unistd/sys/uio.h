@@ -7,6 +7,8 @@
 
 #include <stddef.h>  // size_t
 #include <sys/types.h> // ssize_t, if you define it there
+#include "posix_types.h"
+#include "cfunc.h"
 
 struct iovec 
 {   void  *iov_base;   /* Starting address */

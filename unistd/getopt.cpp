@@ -1,9 +1,10 @@
 /* NetBSD getopt.c   */
 
-#include <string.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <assert.h>
+#include <string.h>
+#include <stdio.h>
 
 inline
 const char* _getprogname()

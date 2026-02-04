@@ -9,14 +9,15 @@
 #include <time.h>
 #include <memory.h>
 #include "stub.h"
-#include "sys/sys_types.h"
+#include "sys/types.h"
+#include "sys/posix_types.h"
 
 #ifdef __cplusplus
 extern "C" {
 #else
 //#define inline __inline
 #endif
-
+#define RETSIGTYPE void
 #define SIGRTMIN 32
 #define SIGRTMAX 64
 

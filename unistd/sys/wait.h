@@ -5,7 +5,7 @@
 #ifndef sys_wait_h
 #define sys_wait_h
 
-#include "sys/sys_types.h"
+#include "sys/posix_types.h"
 #include "stub.h"
 #include "sigaction.h"
 

@@ -5,7 +5,7 @@
 */
 
 #include "unistd.h"
-#include "sys/sys_types.h"
+#include "sys/posix_types.h"
 
 pid_t getpgrp() /* POSIX.1 version */
 {	STUB_0(getpgrp);
@@ -52,33 +52,6 @@ int snprintb_m(char *buf, size_t buflen, const char *fmt, uint64_t val,size_t ma
 	STUB_0(snprintb_m);
 }
 
-int uni_open(const char* filename,unsigned oflag,int mode)
-{	return _open(filename,oflag,mode);
-}
-
-int mkdir2(const char* path, int mask)
-{	(void) mask;
-	return _mkdir(path);
-}
-
-int uni_open(const char* filename, unsigned oflag,...)
-{	return _open(filename, oflag, 0);
-}
-
-int fcntl(int handle, int mode,...)
-{	(void)handle;
-	(void)mode;
-	STUB_0(fcntl);
-}
-
-#if 0
-int fcntl(int handle,int mode,int mode2)
-{	(void)handle;
-	(void)mode;
-	(void)mode2;
-	STUB_0(fcntl);
-}
-#endif
 
 size_t unistd_safe_strlen(const char* s)
 {	if(!s)
@@ -118,19 +91,6 @@ int strncasecmp(const char *s1, const char *s2, size_t n)
 	return 0;
 }
 #endif
-
-FILE *popen(const char *command, const char *type)
-{	
-#ifdef _DEBUG
-	printf("popen(%s,%s)\n",command,type);
-#endif
-	return _popen(command,type);
-}
-
-int pclose(FILE *stream)
-{	return stream ? _pclose(stream):-1;
-}
-
 int kill(pid_t p, int x)
 {	(void)p;
 	(void)x;
@@ -390,16 +350,6 @@ pid_t getpgid(pid_t pid)
 	STUB_0(getpgid);
 }
 
-/*
-
-In process.h:
-
-inline
-pid_t getpid()
-{	return _getpid();
-}
-*/
-
 pid_t getppid()
 {	STUB_0(getppid);
 }
@@ -569,3 +519,84 @@ int vasprintf(char **strp, const char *fmt, va_list ap)
 	return result;
 }
 
+int lstat(const char *path, struct _stat *statbuf) 
+{   HANDLE hFile;
+    BY_HANDLE_FILE_INFORMATION fileInfo;
+    if (!path || !statbuf) 
+	{   errno = EINVAL;
+        return -1;
+    }
+    // Open with FILE_FLAG_OPEN_REPARSE_POINT to not follow symlinks
+    hFile = CreateFileA(path, 
+                        0,  // No access needed
+                        FILE_SHARE_READ | FILE_SHARE_WRITE,
+                        NULL,
+                        OPEN_EXISTING,
+                        FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+                        NULL);
+    if (hFile == INVALID_HANDLE_VALUE) 
+	{   errno = ENOENT;
+        return -1;
+    }
+    if (!GetFileInformationByHandle(hFile, &fileInfo)) 
+	{   CloseHandle(hFile);
+        errno = EIO;
+        return -1;
+    }
+    CloseHandle(hFile);
+    memset(statbuf, 0, sizeof(struct _stat));
+    DWORD fileAttr = fileInfo.dwFileAttributes;
+    // Set file mode
+    if (fileAttr & FILE_ATTRIBUTE_DIRECTORY) {
+        statbuf->st_mode = _S_IFDIR | 0755;
+    } else if (fileAttr & FILE_ATTRIBUTE_REPARSE_POINT) {
+        statbuf->st_mode = _S_IFLNK | 0777;  // Symlink
+    } else {
+        statbuf->st_mode = _S_IFREG | 0644;
+    }
+    // Set file size
+    statbuf->st_size = (((__int64)fileInfo.nFileSizeHigh) << 32) 
+                        + fileInfo.nFileSizeLow;
+    // Convert FILETIME to time_t
+    ULARGE_INTEGER ull;
+    ull.LowPart = fileInfo.ftLastWriteTime.dwLowDateTime;
+    ull.HighPart = fileInfo.ftLastWriteTime.dwHighDateTime;
+    statbuf->st_mtime = (time_t)(ull.QuadPart / 10000000ULL - 11644473600ULL);
+    ull.LowPart = fileInfo.ftLastAccessTime.dwLowDateTime;
+    ull.HighPart = fileInfo.ftLastAccessTime.dwHighDateTime;
+    statbuf->st_atime = (time_t)(ull.QuadPart / 10000000ULL - 11644473600ULL);
+    ull.LowPart = fileInfo.ftCreationTime.dwLowDateTime;
+    ull.HighPart = fileInfo.ftCreationTime.dwHighDateTime;
+    statbuf->st_ctime = (time_t)(ull.QuadPart / 10000000ULL - 11644473600ULL);
+    // Set number of links (Windows doesn't really support this)
+    statbuf->st_nlink = 1;
+    return 0;
+}
+
+#if 0
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
+
+int stat(const char *path, struct stat *buf) 
+{   struct _stat64 wbuf;
+    int rc = _stat64(path, &wbuf);
+    if (rc != 0) 
+	{	return -1;
+    }
+    // Copy fields into POSIX struct stat
+    buf->st_dev   = (dev_t)wbuf.st_dev;
+    buf->st_ino   = (ino_t)wbuf.st_ino;
+    buf->st_mode  = (mode_t)wbuf.st_mode;
+    buf->st_nlink = (nlink_t)wbuf.st_nlink;
+    buf->st_uid   = (uid_t)0;       // Windows does not provide POSIX uid
+    buf->st_gid   = (gid_t)0;       // Windows does not provide POSIX gid
+    buf->st_rdev  = (dev_t)wbuf.st_rdev;
+    buf->st_size  = (off_t)wbuf.st_size;
+    buf->st_atime = (time_t)wbuf.st_atime;
+    buf->st_mtime = (time_t)wbuf.st_mtime;
+    buf->st_ctime = (time_t)wbuf.st_ctime;
+    return 0;
+}
+
+#endif

@@ -13,7 +13,14 @@
 #include <stdint.h>
 #include "stub.h"
 #include "cfunc.h"
-#include "sys/uio.h"
+#include "uio.h"
+#include "posix_types.h"
+
+struct unix_socket {
+    int is_server;
+    char path[UNIX_PATH_MAX];
+    HANDLE handle;
+};
 
 typedef uint32_t sa_family_t;
 
@@ -28,6 +35,8 @@ struct msghdr
 };
 
 typedef int caddr_t;
+
+// ssize_t send(int sockfd, const void *buf, size_t size, int flags)
 
 // The ioctlsocket function and the WSAIoctl function handle socket functions that were performed by IOCTL and fcntl in BSD
 

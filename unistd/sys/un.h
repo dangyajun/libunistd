@@ -7,7 +7,7 @@
 
 #include <errno.h>
 #include "../cfunc.h"
-#include "sys_types.h"
+#include "posix_types.h"
 #include "../grp.h"
 
 #define AF_LOCAL AF_UNIX

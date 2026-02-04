@@ -5,8 +5,8 @@
 #ifndef atomic_stdatomic_h
 #define atomic_stdatomic_h
 
-#include "../unistd.h"
-#include "../cfunc.h"
+#include "unistd.h"
+#include "cfunc.h"
 
 #if 1
 #ifdef __cplusplus

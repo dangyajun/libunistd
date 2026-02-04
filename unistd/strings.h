@@ -5,6 +5,7 @@
 #ifndef strings_h
 #define strings_h
 
+#include <stddef.h>
 #include <string.h>
 #include "stub.h"
 #include "cfunc.h"
@@ -32,6 +33,16 @@ int strcasecmp(const char *s1, const char *s2)
 inline
 int strncasecmp(const char *s1, const char *s2, size_t n)
 {	return strnicmp(s1,s2,n);
+}
+
+inline
+int bcmp(const void* s1, const void* s2, size_t n)
+{	return memcmp(s1,s2,n);
+}
+
+inline
+void bcopy(const void* src,void* dest,size_t n)
+{	memcpy(dest,src,n);
 }
 
 #endif

@@ -1,13 +1,15 @@
-// sys/sys_types.h
+// sys/posix_types.h
 // Copyright 2016 Robin.Rowe@CinePaint.org
 // License open source MIT
 
-#ifndef sys_sys_types_h
-#define sys_sys_types_h
+#ifndef sys_posix_types_h
+#define sys_posix_types_h
 
-#include <stdint.h>
 #include <sys/types.h>
+#include <stdint.h>
 #include "linux/limits.h"
+
+#define off_t __int64 
 
 #define AF_LOCAL AF_UNIX
 #define UNIX_PATH_MAX 108
@@ -42,11 +44,32 @@ enum
 #define X_OK 0
 #define F_OK 0
 
+// MSVC doesn't define these POSIX constants
+#ifndef S_IFLNK
+#define S_IFLNK  0xA000  // Symlink file type
+#define _S_IFLNK  0xA000  // Symlink file type
+#endif
+
+#ifndef S_ISLNK
+#define S_ISLNK(m) (((m) & S_IFMT) == S_IFLNK)
+#endif
+
+// Also useful to have:
+#ifndef S_IFMT
+#define S_IFMT   _S_IFMT
+#endif
+
+#ifndef S_IFREG
+#define S_IFREG  _S_IFREG
+#endif
+
+#ifndef S_IFDIR
+#define S_IFDIR  _S_IFDIR
+#endif
+
 #ifndef S_ISREG
 #define S_ISREG(x) (_S_IFREG & x)
 #endif
-
-#define S_ISLNK(x) 0
 
 #ifndef S_ISDIR
 #define S_ISDIR(x) (_S_IFDIR & x)
@@ -94,7 +117,6 @@ From WIN32 sys/stat.h:
 */
 enum {
 	S_IFSOCK = 1,
-	S_IFLNK,
 	S_IFBLK,
 	S_IFIFO,
 	S_ISUID,
@@ -129,10 +151,30 @@ int access(const char *pathname, int mode)
 #define O_SYNC 0
 #define O_NOCTTY 0
 
-struct unix_socket {
-    int is_server;
-    char path[UNIX_PATH_MAX];
-    HANDLE handle;
-};
+#include <fcntl.h>
+
+#ifndef O_RDONLY
+#define O_RDONLY _O_RDONLY
+#endif
+
+#ifndef O_WRONLY
+#define O_WRONLY _O_WRONLY
+#endif
+
+#ifndef O_RDWR
+#define O_RDWR   _O_RDWR
+#endif
+
+#ifndef O_CREAT
+#define O_CREAT  _O_CREAT
+#endif
+
+#ifndef O_TRUNC
+#define O_TRUNC  _O_TRUNC
+#endif
+
+#ifndef O_APPEND
+#define O_APPEND _O_APPEND
+#endif
 
 #endif
