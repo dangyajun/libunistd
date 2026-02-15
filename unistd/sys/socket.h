@@ -5,11 +5,17 @@
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+<<<<<<< HEAD
 #endif
+=======
+#define CONST const
+>>>>>>> d29b775ff2df1ed83b98925f2d869ab0c7808cc2
 #include <winsock2.h>
 #include <windows.h>
+#define VOID void
 #include <Mstcpip.h>
 #include <Ws2tcpip.h>
+#undef VOID
 #include <stdint.h>
 #include "stub.h"
 #include "cfunc.h"
@@ -34,11 +40,15 @@ struct msghdr
 	int msg_flags;
 };
 
-typedef int caddr_t;
+typedef uint8_t* caddr_t;
 
 // ssize_t send(int sockfd, const void *buf, size_t size, int flags)
 
 // The ioctlsocket function and the WSAIoctl function handle socket functions that were performed by IOCTL and fcntl in BSD
+
+inline int inet_aton(const char* cp, struct in_addr* inp)
+{	return inet_pton(AF_INET, cp, inp);
+}
 
 /* FYI, how to do TCP_KEEPCNT in linux/windows:
 #ifndef _WIN32

@@ -28,12 +28,15 @@ int setpgrp(pid_t pid, pid_t pgid) /* BSD version */
 
 #pragma warning(disable : 4996)
 
-/*
-inline
 int read(int fh,void* buf,unsigned count)
 {	return _read(fh,buf,count);
 }
-*/
+
+#if 0
+int pipe(int pipes[2])
+{	return _pipe((pipes), 8*1024, _O_BINARY);
+}
+#endif
 
 int snprintb(char *buf, size_t buflen, const char *fmt, uint64_t val)
 {	(void)buf;
@@ -169,7 +172,7 @@ char* realpath(const char *path, char *resolved_path)
 	{	return 0;
 	}
 	const DWORD  err = GetFullPathNameA(path,(DWORD) PATH_MAX,resolved_path,0);
-	if(err)
+	if(err == 0)
 	{	return 0;
 	}
 	return resolved_path;
@@ -463,6 +466,10 @@ long int random()
 {	return rand();
 }
 
+void srandom(unsigned int seed)
+{ 	srand(seed);
+}
+
 #if 0
 int sleep(useconds_t seconds)
 {	Sleep((DWORD)(1000*seconds));
@@ -600,3 +607,49 @@ int stat(const char *path, struct stat *buf)
 }
 
 #endif
+
+ssize_t pwrite(int fildes, const void *buf, size_t nbyte, off_t offset)
+{	if (nbyte == 0)
+	{	return 0;
+	}
+	OVERLAPPED overlapped;
+	memset(&overlapped, 0, sizeof(overlapped));
+	overlapped.Offset = static_cast<DWORD>(offset);
+	overlapped.OffsetHigh = offset >> 32;
+	DWORD written;
+	if (!WriteFile((HANDLE)_get_osfhandle(fildes), buf, static_cast<DWORD>(nbyte), &written, &overlapped))
+	{	return -1;
+	}
+	return written;
+}
+
+int setlinebuf(FILE *stream)
+{	return setvbuf(stream, NULL, _IONBF, 0);
+}
+
+#if 0
+int vasprintf(char **ptr, const char *format, va_list arg)
+{	int n = _vscprintf(format, arg);
+	if (n < 0)
+		return -1;
+	char *p = (char *)malloc(n+1);
+	if (p == NULL)
+		return -1;
+	int rv = vsprintf_s(p, n+1, format, arg);
+	if (rv < 0)
+	{	free(p);
+		return -1;
+	}
+	*ptr = p;
+	return rv;
+}
+#endif
+
+int asprintf(char **ret, const char *format, ...)
+{	va_list ap;
+	va_start(ap, format);
+	int retval = vasprintf(ret, format, ap);
+	va_end(ap);
+	return retval;
+}
+

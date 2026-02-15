@@ -33,14 +33,16 @@
 #include <winerror.h>
 #include <memory.h>
 #include <mswsock.h> //for SO_UPDATE_ACCEPT_CONTEXT
+#include <Ws2tcpip.h>//for InetNtop
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
 #include <signal.h>
 #include <sys/utime.h>
 #include <sys/stat.h>
+#include <sys/random.h>
+#include <assert.h>
 #include <inttypes.h>
-
 #include "bsd/string.h"
 #include "sigaction.h"
 #include "gettimeofday.h"
@@ -65,6 +67,23 @@ const char* GetUnistdVersion()
 #define SSIZE_MAX SIZE_MAX
 #define SIGTRAP 23
 
+CFUNC const char* optarg;
+CFUNC int optind;
+CFUNC int opterr;
+CFUNC int optopt;
+
+typedef long long useconds_t;
+typedef unsigned int uint;
+
+#if 0
+enum
+{	F_LOCK=1,
+	F_TLOCK,
+	F_ULOCK,
+	F_TEST
+};
+#endif
+
 #ifdef _BSD_SOURCE
 CFUNC pid_t getpgrp(pid_t pid); /* BSD version */
 //CFUNC int fcntl(int handle,int mode,int mode2);
@@ -81,7 +100,13 @@ void *alloca(size_t size)
 #else
 #define alloca _alloca
 #endif
-
+CFUNC int setpgrp(pid_t pid, pid_t pgid); 
+CFUNC int read(int fh, void* buf, unsigned count);
+CFUNC int pipe(int pipes[2]);
+//CFUNC int uni_open(const char* filename,unsigned oflag,int mode);
+CFUNC int uni_open(const char* filename, unsigned oflag,...);
+//CFUNC int fcntl(int handle, int mode,...);
+//CFUNC int fcntl(int handle,int mode,int mode2);
 CFUNC int setpgrp(pid_t pid, pid_t pgid); 
 CFUNC int mkdir2(const char* path, int mask);
 CFUNC int snprintb(char *buf, size_t buflen, const char *fmt, uint64_t val);
@@ -156,6 +181,7 @@ CFUNC pid_t vfork();
 CFUNC double drand48();
 CFUNC void srand48(long int seedval);
 CFUNC long int random(void);
+CFUNC void srandom(unsigned int seed);
 CFUNC int setenv(const char *name, const char *value, int overwrite);
 CFUNC int unsetenv(const char *name);
 CFUNC int truncate(const char *path, off_t length);
@@ -184,6 +210,22 @@ char *strdup(const char *s)
 
 #define vsnprintf _vsnprintf
 //Already in Win32: CFUNC int chmod(const char *path, mode_t mode);
+CFUNC ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset);
+CFUNC int setlinebuf(FILE *stream);
+CFUNC int vasprintf(char **strp, const char *fmt, va_list ap);
+CFUNC int aprintf(char **ret, const char *format, ...);
+
+//#define strlen unistd_safe_strlen
+//#define inet_ntop InetNtop
+#define bzero(address,size) memset((address),0,size)
+#define bcmp(s1, s2, n)	memcmp ((s1), (s2), (n))
+#define bcopy(s, d, n)	memcpy ((d), (s), (n))
+#define pow10(x) pow(x,10)
+#define alloca _alloca
+/* use with limits.h */
+#define LONG_LONG_MAX LLONG_MAX     
+#define LONG_LONG_MIN LLONG_MIN     
+#define strdup _strdup
 //#define sscanf uni_sscanf
 //#define strlen unistd_safe_strlen
 //#define inet_ntop InetNtop
@@ -267,9 +309,25 @@ int execv(const char *path, char *const *argv)
 {	return _execv(path,argv);
 }
 #else
+#define isatty _isatty
+#define getcwd _getcwd
+#define dup2 _dup2
+#define dup _dup
+#define close _close
+#define chdir _chdir
+#define getpid _getpid
+#define RETSIGTYPE void
+#define access _access
+#ifndef __has_attribute
+#define   __attribute__(x)
+#endif
+//#define mkdir mkdir2
+//#define fileno _fileno
+//#define open uni_open
+//#define fdopen _fdopen
 #define execve _execve
 #define execv _execv
-#define mkdir _mkdir
+//#define mkdir _mkdir
 #endif
 
 inline
@@ -321,5 +379,35 @@ int stat(const char *path, struct stat *buf)
 #define stat _stat64
 #endif
 
+// Defined unsupported macro as empty.
+#define __builtin_unreachable()
+
+// Remove defines that cause collisions.
+#undef min
+#undef max
+#undef close
+#undef CONST
+#undef ERROR
+#undef IGNORE
+#undef STATUS_INVALID_HANDLE
+#undef STATUS_INVALID_PARAMETER
+#undef Yield
+#undef CompareString
+#undef NO_ERROR
+
+#if _MSC_VER < 1930
+// Workaround negative character values that caused asserts on VS 2019 and below
+#define isalpha(ch) isalpha((unsigned char)(ch))
+#define isupper(ch) isupper((unsigned char)(ch))
+#define islower(ch) islower((unsigned char)(ch))
+#define isdigit(ch) isdigit((unsigned char)(ch))
+#define isspace(ch) isspace((unsigned char)(ch))
+#define ispunct(ch) ispunct((unsigned char)(ch))
+#define isblank(ch) isblank((unsigned char)(ch))
+#define isalnum(ch) isalnum((unsigned char)(ch))
+#define isprint(ch) isprint((unsigned char)(ch))
+#define isgraph(ch) isgraph((unsigned char)(ch))
+#define iscntrl(ch) iscntrl((unsigned char)(ch))
 #endif
 
+#endif
