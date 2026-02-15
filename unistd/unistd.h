@@ -73,10 +73,14 @@ CFUNC pid_t getpgrp(); /* POSIX.1 version */
 //CFUNC int fcntl(int handle, int mode,...);
 #endif
 
+#if _CRT_DECLARE_NONSTDC_NAMES == 1
 inline
 void *alloca(size_t size)
 {	return _alloca(size);
 }
+#else
+#define alloca _alloca
+#endif
 
 CFUNC int setpgrp(pid_t pid, pid_t pgid); 
 CFUNC int mkdir2(const char* path, int mask);
@@ -199,10 +203,14 @@ int rmdir(const char *path)
 {	return _rmdir(path);
 }
 
+#if _CRT_DECLARE_NONSTDC_NAMES == 1
 inline
 off_t lseek(int fd, off_t offset, int whence)
 {	_lseek(fd,offset,whence);
 }
+#else
+#define lseek _lseek
+#endif
 
 inline
 int isatty(int fd)
@@ -210,7 +218,7 @@ int isatty(int fd)
 }
 
 inline
-char *getcwd(char* buf, size_t size)
+char *getcwd(char* buf, int size)
 {	return _getcwd(buf,size);
 }
 
@@ -241,6 +249,8 @@ int pipe(int* pipes)
 {	return _pipe((pipes),8*1024,_O_BINARY);
 }
 
+#if _CRT_DECLARE_NONSTDC_NAMES == 1
+
 inline
 int mkdir(const char *path, mode_t mode)
 {	(void) mode;
@@ -256,6 +266,11 @@ inline
 int execv(const char *path, char *const *argv)
 {	return _execv(path,argv);
 }
+#else
+#define execve _execve
+#define execv _execv
+#define mkdir _mkdir
+#endif
 
 inline
 int open(const char *filename, int oflag, ...)
@@ -282,6 +297,7 @@ CFUNC int lstat(const char *path,struct _stat *statbuf);
 
 // Cannot do struct/function name: typedef struct _stat64 stat;
 
+#if _CRT_DECLARE_NONSTDC_NAMES == 1
 struct stat 
 {// same as _stat64
     _dev_t         st_dev;
@@ -301,6 +317,9 @@ inline
 int stat(const char *path, struct stat *buf) 
 {   return _stat64(path, (struct _stat64*)buf);
 }
+#else
+#define stat _stat64
+#endif
 
 #endif
 

@@ -30,6 +30,7 @@ int fcntl(int handle, int mode,...)
 	STUB_0(fcntl);
 }
 
+#if _CRT_DECLARE_NONSTDC_NAMES == 1
 inline
 ssize_t write(int fd,const void* buf,size_t count)
 {	return _write(fd,buf,count);
@@ -39,6 +40,10 @@ inline
 ssize_t read(int fd,void* buf,size_t count)
 {	return _read(fd,buf,count);
 }
+#else
+#define write _write
+#define reat _read
+#endif
 
 inline
 FILE *popen(const char *command, const char *type)
