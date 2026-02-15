@@ -78,4 +78,3 @@ endif (BUILD_XXHASH)
 if (WITH_TESTS)
     add_subdirectory(test)
 endif (WITH_TESTS)
-
