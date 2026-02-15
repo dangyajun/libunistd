@@ -42,7 +42,13 @@ const std::map<error_type, int> ERROR_TYPE =
 	{error_space, REG_ESPACE},
 	{error_badrepeat, REG_BADRPT},
 	{error_complexity, REG_ESIZE},
+<<<<<<< HEAD
 	{error_stack, REG_ESIZE}
+=======
+	{error_stack, REG_ESIZE},
+	/*{error_parse, REG_BADPAT},*/
+	{error_syntax, REG_BADPAT}
+>>>>>>> bccd5e70ec493ab91d0f1f3e5deb0842d04e503d
 };
 
 int getErrorCode(error_type err)

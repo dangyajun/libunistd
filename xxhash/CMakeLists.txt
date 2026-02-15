@@ -1,35 +1,21 @@
-# libunistd/unistd/CMakeLists.txt
-# Copyright 2016 Robin.Rowe@cinepaint.org
-# License MIT open source
+# libunistd/xxhash/CMakeLists.txt
 
-if(_M_X64)
-	enable_language(ASM_MASM)
-	set(INT128_SRC Int128x64.asm)
-else(_M_X64)
-	set(INT128_SRC int128/Int128x86.cpp)
-endif(_M_X64)
+project(libxxhash)
+message("--- Building library ${PROJECT_NAME} ---")
 
-file(STRINGS sources.cmake SOURCES)
-if (BUILD_SHARED_LIBS AND NOT BUILD_STATIC_LIBS AND BUILD_UNISTD_SHARED)
+set(Header_Files "xxhash.h")
+source_group("Header Files" FILES "${Header_Files}")
+
+set(Source_Files "xxhash.c" "xxhsum.c")
+source_group("Source Files" FILES "${Source_Files}")
+
+if (BUILD_SHARED_LIBS AND NOT BUILD_STATIC_LIBS)
 	set(lib_type SHARED)
 else ()
 	set(lib_type STATIC)
 endif ()
-set(LIBRARY_NAME "libunistd")
-add_library(${LIBRARY_NAME}
-	${lib_type}
-	${SOURCES}
-	int128/Int128.h
-	${INT128_SRC}
-)
-
-target_include_directories(${LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${LIBRARY_NAME} LINK_PUBLIC shlwapi)
-if (lib_type STREQUAL "STATIC")
-    target_link_libraries(${LIBRARY_NAME} LINK_PUBLIC libportable)
-else ()
-	target_link_libraries(${LIBRARY_NAME} PRIVATE libportable)
-endif ()
+set(LIBRARY_NAME "${PROJECT_NAME}")
+add_library(${LIBRARY_NAME} ${lib_type} ${Header_Files} ${Source_Files} )
 
 #######################################
 # Export / installation configuration #
@@ -51,5 +37,5 @@ install(TARGETS ${installable_libs}
 		ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 		LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 		RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
-install(FILES int128/Int128.h
+install(FILES ${Header_Files}
 		TYPE "INCLUDE")

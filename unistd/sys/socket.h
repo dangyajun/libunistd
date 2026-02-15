@@ -5,11 +5,8 @@
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
-<<<<<<< HEAD
 #endif
-=======
 #define CONST const
->>>>>>> d29b775ff2df1ed83b98925f2d869ab0c7808cc2
 #include <winsock2.h>
 #include <windows.h>
 #define VOID void
