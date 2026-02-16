@@ -1,4 +1,4 @@
-// sys/socket.h
+﻿// sys/socket.h
 
 #ifndef sys_socket_h
 #define sys_socket_h
@@ -6,13 +6,12 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#define CONST const
-#include <winsock2.h>
+// Windows SDKs (Vista → 11) changed rule, include windows.h first:
+// <windows.h> no longer includes <winsock.h>
 #include <windows.h>
-#define VOID void
+#include <winsock2.h>
 #include <Mstcpip.h>
 #include <Ws2tcpip.h>
-#undef VOID
 #include <stdint.h>
 #include "stub.h"
 #include "cfunc.h"

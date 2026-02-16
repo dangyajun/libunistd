@@ -8,14 +8,14 @@
 #define unistd_h
 
 #if !defined(_WINSOCK2API_) && defined(_WINSOCKAPI_)
-#error Winsock2.h (unistd.h) must be included before Windows.h!
+#error unistd.h must be included before Winsock2.h or Windows.h!
 #endif
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#include <WinSock2.h>
-#include <Windows.h>
+#include <windows.h>
+#include <winsock2.h>
 #include <winnt.h>
 #include <corecrt_io.h>
 #include <vcruntime.h>
@@ -92,19 +92,10 @@ CFUNC pid_t getpgrp(); /* POSIX.1 version */
 //CFUNC int fcntl(int handle, int mode,...);
 #endif
 
-#if _CRT_DECLARE_NONSTDC_NAMES == 1
-inline
-void *alloca(size_t size)
-{	return _alloca(size);
-}
-#else
-#define alloca _alloca
-#endif
 CFUNC int setpgrp(pid_t pid, pid_t pgid); 
-CFUNC int read(int fh, void* buf, unsigned count);
 CFUNC int pipe(int pipes[2]);
 //CFUNC int uni_open(const char* filename,unsigned oflag,int mode);
-CFUNC int uni_open(const char* filename, unsigned oflag,...);
+//CFUNC int uni_open(const char* filename, unsigned oflag,...);
 //CFUNC int fcntl(int handle, int mode,...);
 //CFUNC int fcntl(int handle,int mode,int mode2);
 CFUNC int setpgrp(pid_t pid, pid_t pgid); 
@@ -245,15 +236,6 @@ int rmdir(const char *path)
 {	return _rmdir(path);
 }
 
-#if _CRT_DECLARE_NONSTDC_NAMES == 1
-inline
-off_t lseek(int fd, off_t offset, int whence)
-{	_lseek(fd,offset,whence);
-}
-#else
-#define lseek _lseek
-#endif
-
 inline
 int isatty(int fd)
 {	return _isatty(fd);
@@ -291,45 +273,6 @@ int pipe(int* pipes)
 {	return _pipe((pipes),8*1024,_O_BINARY);
 }
 
-#if _CRT_DECLARE_NONSTDC_NAMES == 1
-
-inline
-int mkdir(const char *path, mode_t mode)
-{	(void) mode;
-	return _mkdir(path);
-}
-
-inline
-int execve(const char *path, char *const *argv,char *const *envp)
-{	return _execve(path,argv,envp);
-}
-
-inline
-int execv(const char *path, char *const *argv)
-{	return _execv(path,argv);
-}
-#else
-#define isatty _isatty
-#define getcwd _getcwd
-#define dup2 _dup2
-#define dup _dup
-#define close _close
-#define chdir _chdir
-#define getpid _getpid
-#define RETSIGTYPE void
-#define access _access
-#ifndef __has_attribute
-#define   __attribute__(x)
-#endif
-//#define mkdir mkdir2
-//#define fileno _fileno
-//#define open uni_open
-//#define fdopen _fdopen
-#define execve _execve
-#define execv _execv
-//#define mkdir _mkdir
-#endif
-
 inline
 int open(const char *filename, int oflag, ...)
 {	return _open(filename, oflag, 0); //mode is third arg
@@ -341,43 +284,22 @@ int close(int fd)
 }
 
 CFUNC int lstat(const char *path,struct _stat *statbuf);
+CFUNC int fstat(int fd, struct stat* st);
 
 #define spawnvpe _spawnvpe
 #define spawnvp _spawnvp
 #define spawnve _spawnve
 #define spawnv _spawnv
+#define strcmpi _stricmp
+#define strcasecmp _stricmp
+#define isascii(c) ((unsigned)(c) < 0x80)
 
 // causes issues with math.h:
 //#define rint(x) floor ((x) + 0.5)
 //#define lround floor
 //#define roundl floor
+
 // The POSIX name for this item is deprecated by MSVC:
-
-// Cannot do struct/function name: typedef struct _stat64 stat;
-
-#if _CRT_DECLARE_NONSTDC_NAMES == 1
-struct stat 
-{// same as _stat64
-    _dev_t         st_dev;
-    _ino_t         st_ino;
-    unsigned short st_mode;
-    short          st_nlink;
-    short          st_uid;
-    short          st_gid;
-    _dev_t         st_rdev;
-    __int64        st_size;
-    __time64_t     st_atime;
-    __time64_t     st_mtime;
-    __time64_t     st_ctime;
-};
-
-inline
-int stat(const char *path, struct stat *buf) 
-{   return _stat64(path, (struct _stat64*)buf);
-}
-#else
-#define stat _stat64
-#endif
 
 // Defined unsupported macro as empty.
 #define __builtin_unreachable()
@@ -386,8 +308,8 @@ int stat(const char *path, struct stat *buf)
 #undef min
 #undef max
 #undef close
-#undef CONST
-#undef ERROR
+//#undef CONST
+//#undef ERROR
 #undef IGNORE
 #undef STATUS_INVALID_HANDLE
 #undef STATUS_INVALID_PARAMETER

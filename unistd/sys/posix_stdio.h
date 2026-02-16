@@ -30,19 +30,116 @@ int fcntl(int handle, int mode,...)
 	STUB_0(fcntl);
 }
 
-#if _CRT_DECLARE_NONSTDC_NAMES == 1
+#if _CRT_DECLARE_NONSTDC_NAMES == 0
+
 inline
 ssize_t write(int fd,const void* buf,size_t count)
 {	return _write(fd,buf,count);
 }
 
+//CFUNC int read(int fh, void* buf, unsigned count);
 inline
 ssize_t read(int fd,void* buf,size_t count)
 {	return _read(fd,buf,count);
 }
+
+inline
+void *alloca(size_t size)
+{	return _alloca(size);
+}
+
+inline
+off_t lseek(int fd, off_t offset, int whence)
+{	return _lseek(fd,offset,whence);
+}
+
+inline
+int mkdir(const char *path, mode_t mode)
+{	(void) mode;
+	return _mkdir(path);
+}
+
+inline
+int execve(const char *path, char *const *argv,char *const *envp)
+{	return _execve(path,argv,envp);
+}
+
+inline
+int execv(const char *path, char *const *argv)
+{	return _execv(path,argv);
+}
+
+// Cannot do struct/function name: typedef struct _stat64 stat;
+
+typedef unsigned long nlink_t;
+typedef long blksize_t;
+typedef long long blkcnt_t;
+
+#if 0
+struct stat 
+{// same as _stat64
+    _dev_t         st_dev;
+    _ino_t         st_ino;
+    unsigned short st_mode;
+    short          st_nlink;
+    short          st_uid;
+    short          st_gid;
+    _dev_t         st_rdev;
+    __int64        st_size;
+    __time64_t     st_atime;
+    __time64_t     st_mtime;
+    __time64_t     st_ctime;
+};
+#endif
+
+struct stat {
+    dev_t     st_dev;
+    ino_t     st_ino;
+    mode_t    st_mode;
+    nlink_t   st_nlink;
+    uid_t     st_uid;
+    gid_t     st_gid;
+    dev_t     st_rdev;
+    off_t     st_size;
+    time_t    st_atime;
+    time_t    st_mtime;
+    time_t    st_ctime;
+    blksize_t st_blksize;   
+    blkcnt_t  st_blocks;    
+};
+
+inline
+int stat(const char *path, struct stat *buf) 
+{   return _stat64(path, (struct _stat64*)buf);
+}
+
 #else
+#error Cmake set: add_definitions(-D_CRT_DECLARE_NONSTDC_NAMES=0)
 #define write _write
-#define reat _read
+#define read _read
+#define alloca _alloca
+#define lseek _lseek
+#define isatty _isatty
+#define getcwd _getcwd
+#define dup2 _dup2
+#define dup _dup
+#define close _close
+#define chdir _chdir
+#define getpid _getpid
+#define RETSIGTYPE void
+#define access _access
+#ifndef __has_attribute
+#define   __attribute__(x)
+#endif
+//#define mkdir mkdir2
+//#define fileno _fileno
+//#define open uni_open
+//#define fdopen _fdopen
+#define execve _execve
+#define execv _execv
+//#define mkdir _mkdir
+#define stat _stat64
+
 #endif
 
 inline

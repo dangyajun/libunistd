@@ -184,12 +184,32 @@ int access(const char *pathname, int mode)
 #define O_CREAT  _O_CREAT
 #endif
 
+#ifndef O_EXCL
+#define O_EXCL  _O_EXCL
+#endif
+
 #ifndef O_TRUNC
 #define O_TRUNC  _O_TRUNC
 #endif
 
 #ifndef O_APPEND
 #define O_APPEND _O_APPEND
+#endif
+
+/* Match Linux glibc behavior */
+
+#if defined(_WIN64)
+
+/* 64-bit Windows */
+typedef unsigned long long ino_t;   /* Linux ino_t = unsigned long (64-bit) */
+typedef unsigned long long dev_t;   /* Linux dev_t = 64-bit */
+
+#else
+
+/* 32-bit Windows */
+typedef unsigned long ino_t;        /* Linux ino_t = unsigned long (32-bit) */
+typedef unsigned long long dev_t;   /* Linux dev_t = 64-bit */
+
 #endif
 
 #endif

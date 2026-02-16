@@ -4,7 +4,11 @@
 // License MIT (http://opensource.org/licenses/mit-license.php)
 */
 
+#include <vector>
 #include "unistd.h"
+#include <ws2tcpip.h>
+#include <io.h>
+#include <stdint.h>
 #include "sys/posix_types.h"
 
 pid_t getpgrp() /* POSIX.1 version */
@@ -28,8 +32,67 @@ int setpgrp(pid_t pid, pid_t pgid) /* BSD version */
 
 #pragma warning(disable : 4996)
 
-int read(int fh,void* buf,unsigned count)
-{	return _read(fh,buf,count);
+struct WinsockData
+{   std::vector<SOCKET> socket;
+	WinsockData() 
+	{   WSADATA wsa;
+        int err = WSAStartup(MAKEWORD(2, 2), &wsa);
+        if (err != 0) 
+		{	puts("ERROR: WSAStartup failed");
+    }   }
+    ~WinsockData() {
+        WSACleanup();
+    }
+};
+
+static WinsockData winsock_data;
+
+static inline 
+SOCKET get_socket(int fd) 
+{   if (fd < 0 || fd >= winsock_data.socket.size() )
+	{	return INVALID_SOCKET;
+	}
+    return winsock_data.socket[fd];
+}
+
+int posix_socket(int domain, int type, int protocol) {
+    SOCKET s = WSASocket(domain, type, protocol, NULL, 0, 0);
+    if (s == INVALID_SOCKET)
+    {   return -1;
+	}
+    int fd = _open_osfhandle((intptr_t)s, 0);
+    if (fd < 0) 
+	{   closesocket(s);
+        return -1;
+    }
+    winsock_data.socket.push_back(s);
+    return fd;
+}
+
+int posix_read(int fd,void* buf,unsigned len)
+{   SOCKET s = get_socket(fd);
+	if(s != INVALID_SOCKET)
+	{   int ret = recv(s,(char*) buf, (int)len, 0);
+        if (ret == SOCKET_ERROR) 
+		{   errno = WSAGetLastError() == WSAEWOULDBLOCK ? EAGAIN : EIO;
+            return -1;
+        }
+        return ret;
+    }
+    return _read(fd, buf, (unsigned)len);
+}
+
+ssize_t posix_write(int fd, const void *buf, size_t len) 
+{   SOCKET s = get_socket(fd);
+	if(s != INVALID_SOCKET)
+	{   int ret = send(s, (char*) buf, (int)len, 0);
+        if (ret == SOCKET_ERROR)
+		{   errno = WSAGetLastError() == WSAEWOULDBLOCK ? EAGAIN : EIO;
+            return -1;
+        }
+        return ret;
+    }
+	return _write(fd, buf, (unsigned)len);
 }
 
 #if 0
@@ -54,7 +117,6 @@ int snprintb_m(char *buf, size_t buflen, const char *fmt, uint64_t val,size_t ma
 	(void)max;
 	STUB_0(snprintb_m);
 }
-
 
 size_t unistd_safe_strlen(const char* s)
 {	if(!s)
@@ -577,6 +639,68 @@ int lstat(const char *path, struct _stat *statbuf)
     statbuf->st_ctime = (time_t)(ull.QuadPart / 10000000ULL - 11644473600ULL);
     // Set number of links (Windows doesn't really support this)
     statbuf->st_nlink = 1;
+    return 0;
+}
+
+static int map_errno(DWORD winerr)
+{
+    switch (winerr) {
+    case ERROR_FILE_NOT_FOUND:     return ENOENT;
+    case ERROR_PATH_NOT_FOUND:     return ENOENT;
+    case ERROR_ACCESS_DENIED:      return EACCES;
+    case ERROR_INVALID_HANDLE:     return EBADF;
+    case ERROR_NOT_ENOUGH_MEMORY:  return ENOMEM;
+    case ERROR_OUTOFMEMORY:        return ENOMEM;
+    case ERROR_SHARING_VIOLATION:  return EACCES;
+    case ERROR_LOCK_VIOLATION:     return EACCES;
+    case ERROR_ALREADY_EXISTS:     return EEXIST;
+    case ERROR_FILE_EXISTS:        return EEXIST;
+    case ERROR_BROKEN_PIPE:        return EPIPE;
+    case ERROR_PIPE_NOT_CONNECTED: return EPIPE;
+    case ERROR_INVALID_FUNCTION:   return EINVAL;
+    default:
+        return EIO;
+    }
+}
+
+int fstat(int fd, struct stat* st)
+{   if (!st) 
+	{   errno = EFAULT;
+        return -1;
+    }
+    // 1. Check if this fd is a socket in your POSIX layer
+    SOCKET s = get_socket(fd);
+    if (s != INVALID_SOCKET) 
+	{   // Sockets have no real stat info on Windows
+        memset(st, 0, sizeof(*st));
+        st->st_mode = S_IFSOCK;
+        st->st_nlink = 1;
+        return 0;
+    }
+    // 2. Use MSVC's _fstat64 for real files
+    struct _stat64 wst;
+    if (_fstat64(fd, &wst) == -1) 
+	{	errno = map_errno(GetLastError());
+        return -1;
+    }
+    // 3. Convert Windows _stat64 ? Linux struct stat
+    memset(st, 0, sizeof(*st));
+    st->st_dev     = (dev_t)wst.st_dev;
+    st->st_ino     = (ino_t)wst.st_ino;
+    st->st_mode    = (mode_t)wst.st_mode;
+    st->st_nlink   = (nlink_t)wst.st_nlink;
+    st->st_uid     = (uid_t)wst.st_uid;
+    st->st_gid     = (gid_t)wst.st_gid;
+    st->st_rdev    = (dev_t)wst.st_rdev;
+    st->st_size    = (off_t)wst.st_size;
+    st->st_atime   = (time_t)wst.st_atime;
+    st->st_mtime   = (time_t)wst.st_mtime;
+    st->st_ctime   = (time_t)wst.st_ctime;
+
+    // Linux fields not present on Windows
+    st->st_blksize = 4096;
+    st->st_blocks  = (st->st_size + 511) / 512;
+
     return 0;
 }
 
