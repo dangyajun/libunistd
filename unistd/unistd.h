@@ -54,7 +54,7 @@
 
 inline 
 const char* GetUnistdVersion()
-{	return "v1.4 (3 Feb 2026)"; // git tag -a v1.4 -m "3 Feb 2026"
+{	return "v1.4 (3 Feb 2026)"; // git tag -a v1.4 -m "16 Feb 2026"
 }
 
 // Disable gcc function signature extension:
@@ -74,15 +74,6 @@ CFUNC int optopt;
 
 typedef long long useconds_t;
 typedef unsigned int uint;
-
-#if 0
-enum
-{	F_LOCK=1,
-	F_TLOCK,
-	F_ULOCK,
-	F_TEST
-};
-#endif
 
 #ifdef _BSD_SOURCE
 CFUNC pid_t getpgrp(pid_t pid); /* BSD version */
@@ -199,32 +190,15 @@ char *strdup(const char *s)
 {	return _strdup(s);
 }
 
-#define vsnprintf _vsnprintf
 //Already in Win32: CFUNC int chmod(const char *path, mode_t mode);
 CFUNC ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset);
 CFUNC int setlinebuf(FILE *stream);
 CFUNC int vasprintf(char **strp, const char *fmt, va_list ap);
 CFUNC int aprintf(char **ret, const char *format, ...);
 
-//#define strlen unistd_safe_strlen
-//#define inet_ntop InetNtop
-#define bzero(address,size) memset((address),0,size)
-#define bcmp(s1, s2, n)	memcmp ((s1), (s2), (n))
-#define bcopy(s, d, n)	memcpy ((d), (s), (n))
-#define pow10(x) pow(x,10)
-#define alloca _alloca
 /* use with limits.h */
 #define LONG_LONG_MAX LLONG_MAX     
-#define LONG_LONG_MIN LLONG_MIN     
-#define strdup _strdup
-//#define sscanf uni_sscanf
-//#define strlen unistd_safe_strlen
-//#define inet_ntop InetNtop
-#ifndef strcasecmp
-#define strcasecmp _stricmp
-#endif
-#define strncasecmp _strnicmp
-#define strtok_r strtok_s
+#define LONG_LONG_MIN LLONG_MIN  
 
 inline
 int unlink(const char *path)
@@ -261,7 +235,6 @@ int chdir(const char *path)
 {	return _chdir(path);
 }
 
-#define getpid _getpid
 
 inline
 int access(const char *path, int mode)
@@ -283,7 +256,7 @@ int close(int fd)
 {	return _close(fd);
 }
 
-CFUNC int lstat(const char *path,struct _stat *statbuf);
+CFUNC int lstat(const char *path,struct stat *statbuf);
 CFUNC int fstat(int fd, struct stat* st);
 
 #define spawnvpe _spawnvpe

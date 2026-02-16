@@ -7,6 +7,7 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <memory.h>
 #include "stub.h"
 #include "cfunc.h"
 
@@ -27,12 +28,12 @@ int ffsll(long long int i)
 
 inline
 int strcasecmp(const char *s1, const char *s2)
-{	return stricmp(s1,s2);
+{	return _stricmp(s1,s2);
 }
 
 inline
 int strncasecmp(const char *s1, const char *s2, size_t n)
-{	return strnicmp(s1,s2,n);
+{	return _strnicmp(s1,s2,n);
 }
 
 inline

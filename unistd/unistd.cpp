@@ -588,7 +588,7 @@ int vasprintf(char **strp, const char *fmt, va_list ap)
 	return result;
 }
 
-int lstat(const char *path, struct _stat *statbuf) 
+int lstat(const char *path, struct stat *statbuf) 
 {   HANDLE hFile;
     BY_HANDLE_FILE_INFORMATION fileInfo;
     if (!path || !statbuf) 

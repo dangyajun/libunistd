@@ -113,6 +113,25 @@ int stat(const char *path, struct stat *buf)
 {   return _stat64(path, (struct _stat64*)buf);
 }
 
+inline
+FILE *popen(const char *command, const char *type)
+{	
+#ifdef _DEBUG
+	printf("popen(%s,%s)\n",command,type);
+#endif
+	return _popen(command,type);
+}
+
+inline
+int pclose(FILE *stream)
+{	return stream ? _pclose(stream):-1;
+}
+
+inline 
+pid_t getpid()
+{   return _getpid();
+}
+
 #else
 #error Cmake set: add_definitions(-D_CRT_DECLARE_NONSTDC_NAMES=0)
 #define write _write
@@ -139,22 +158,26 @@ int stat(const char *path, struct stat *buf)
 #define execv _execv
 //#define mkdir _mkdir
 #define stat _stat64
+//#define strlen unistd_safe_strlen
+//#define inet_ntop InetNtop
+#define vsnprintf _vsnprintf
+#define bzero(address,size) memset((address),0,size)
+#define bcmp(s1, s2, n)	memcmp ((s1), (s2), (n))
+#define bcopy(s, d, n)	memcpy ((d), (s), (n))
+#define pow10(x) pow(x,10)
+#define alloca _alloca
+#define strdup _strdup
+//#define sscanf uni_sscanf
+//#define strlen unistd_safe_strlen
+//#define inet_ntop InetNtop
+#ifndef strcasecmp
+#define strcasecmp _stricmp
+#endif
+#define strncasecmp _strnicmp
+#define strtok_r strtok_s
+#define getpid _getpid
 
 #endif
-
-inline
-FILE *popen(const char *command, const char *type)
-{	
-#ifdef _DEBUG
-	printf("popen(%s,%s)\n",command,type);
-#endif
-	return _popen(command,type);
-}
-
-inline
-int pclose(FILE *stream)
-{	return stream ? _pclose(stream):-1;
-}
 
 // Define missing POSIX constants for MSVC
 #ifndef S_IFLNK
